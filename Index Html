@@ -1,0 +1,952 @@
+<!DOCTYPE html><html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>コレクション管理</title>
+  <meta name="theme-color" content="#0f172a" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel2: #1f2937;
+      --card: #182235;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --line: rgba(255,255,255,0.1);
+      --accent: #38bdf8;
+      --accent2: #a78bfa;
+      --danger: #fb7185;
+      --ok: #4ade80;
+      --warn: #facc15;
+      --radius: 18px;
+      --shadow: 0 18px 40px rgba(0,0,0,0.35);
+    }* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(56,189,248,0.22), transparent 35%),
+    radial-gradient(circle at top right, rgba(167,139,250,0.22), transparent 35%),
+    linear-gradient(180deg, #0f172a, #020617);
+  padding: 16px;
+}
+
+.app {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+header {
+  padding: 18px 4px 14px;
+}
+
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(26px, 6vw, 42px);
+  letter-spacing: 0.02em;
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+button, input, select, textarea {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 14px;
+  color: var(--text);
+  background: var(--panel2);
+  cursor: pointer;
+  transition: transform 0.12s ease, opacity 0.12s ease, background 0.12s ease;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+.primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #020617;
+  font-weight: 800;
+}
+
+.danger {
+  background: rgba(251,113,133,0.14);
+  color: #fecdd3;
+  border: 1px solid rgba(251,113,133,0.35);
+}
+
+.ghost {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--line);
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 12px 0 14px;
+}
+
+.tab {
+  border-radius: var(--radius);
+  padding: 14px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid var(--line);
+  font-weight: 800;
+  text-align: center;
+}
+
+.tab.active {
+  background: linear-gradient(135deg, rgba(56,189,248,0.95), rgba(167,139,250,0.95));
+  color: #020617;
+  border-color: transparent;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.stat {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+}
+
+.stat .label {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.stat .num {
+  font-size: 26px;
+  font-weight: 900;
+  margin-top: 4px;
+}
+
+.panel {
+  background: rgba(17,24,39,0.86);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+  margin-bottom: 14px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field.full {
+  grid-column: 1 / -1;
+}
+
+label {
+  color: var(--muted);
+  font-size: 12px;
+  padding-left: 2px;
+}
+
+input, select, textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: rgba(15,23,42,0.92);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 12px;
+  outline: none;
+}
+
+textarea {
+  min-height: 78px;
+  resize: vertical;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: rgba(56,189,248,0.8);
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.15);
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: 1fr 180px 160px;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.list {
+  display: grid;
+  gap: 10px;
+}
+
+.card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 14px;
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.item-title {
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.4;
+}
+
+.badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.badge {
+  font-size: 12px;
+  color: #e0f2fe;
+  background: rgba(56,189,248,0.15);
+  border: 1px solid rgba(56,189,248,0.3);
+  border-radius: 999px;
+  padding: 5px 8px;
+}
+
+.badge.purple {
+  color: #ede9fe;
+  background: rgba(167,139,250,0.15);
+  border-color: rgba(167,139,250,0.3);
+}
+
+.badge.green {
+  color: #dcfce7;
+  background: rgba(74,222,128,0.14);
+  border-color: rgba(74,222,128,0.3);
+}
+
+.badge.yellow {
+  color: #fef9c3;
+  background: rgba(250,204,21,0.13);
+  border-color: rgba(250,204,21,0.3);
+}
+
+.memo {
+  color: var(--muted);
+  line-height: 1.7;
+  margin-top: 10px;
+  white-space: pre-wrap;
+  font-size: 14px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  min-width: 112px;
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 32px 12px;
+  border: 1px dashed rgba(255,255,255,0.18);
+  border-radius: 18px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.small-note {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+  margin-top: 10px;
+}
+
+@media (max-width: 760px) {
+  body {
+    padding: 12px;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-grid, .filter-row {
+    grid-template-columns: 1fr;
+  }
+
+  .card-top {
+    flex-direction: column;
+  }
+
+  .card-actions {
+    justify-content: flex-start;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="title-row">
+        <div>
+          <h1>コレクション管理</h1>
+          <p class="subtitle">所持しているゲームソフトと漫画の巻数を、スマホだけで管理できます。データは端末内に保存されます。</p>
+        </div>
+        <div class="toolbar">
+          <button class="ghost" id="exportBtn">バックアップ</button>
+          <button class="ghost" id="importBtn">復元</button>
+          <button class="danger" id="wipeBtn">全削除</button>
+          <input type="file" id="importFile" accept="application/json" class="hidden" />
+        </div>
+      </div>
+    </header><div class="tabs">
+  <button class="tab active" data-tab="games">ゲームソフト</button>
+  <button class="tab" data-tab="manga">漫画</button>
+</div>
+
+<section class="stats">
+  <div class="stat">
+    <div class="label">ゲーム本数</div>
+    <div class="num" id="gameCount">0</div>
+  </div>
+  <div class="stat">
+    <div class="label">ハード数</div>
+    <div class="num" id="hardwareCount">0</div>
+  </div>
+  <div class="stat">
+    <div class="label">漫画タイトル</div>
+    <div class="num" id="mangaCount">0</div>
+  </div>
+  <div class="stat">
+    <div class="label">合計巻数</div>
+    <div class="num" id="volumeCount">0</div>
+  </div>
+</section>
+
+<section class="panel" id="gameFormPanel">
+  <h2 id="gameFormTitle">ゲームソフトを追加</h2>
+  <div class="form-grid">
+    <div class="field">
+      <label for="gameTitle">ソフト名</label>
+      <input id="gameTitle" placeholder="例：ドラゴンクエストXI" />
+    </div>
+    <div class="field">
+      <label for="gameHardware">ハード</label>
+      <input id="gameHardware" list="hardwareList" placeholder="例：Switch / PS5 / 3DS" />
+      <datalist id="hardwareList">
+        <option value="Nintendo Switch"></option>
+        <option value="Nintendo Switch 2"></option>
+        <option value="PS5"></option>
+        <option value="PS4"></option>
+        <option value="PS3"></option>
+        <option value="PS Vita"></option>
+        <option value="PSP"></option>
+        <option value="3DS"></option>
+        <option value="DS"></option>
+        <option value="GBA"></option>
+        <option value="Steam"></option>
+        <option value="Xbox"></option>
+      </datalist>
+    </div>
+    <div class="field">
+      <label for="gameType">種類</label>
+      <select id="gameType">
+        <option value="パッケージ">パッケージ</option>
+        <option value="ダウンロード">ダウンロード</option>
+        <option value="限定版">限定版</option>
+        <option value="その他">その他</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="gameStatus">状態</label>
+      <select id="gameStatus">
+        <option value="未プレイ">未プレイ</option>
+        <option value="プレイ中">プレイ中</option>
+        <option value="クリア済み">クリア済み</option>
+        <option value="積みゲー">積みゲー</option>
+        <option value="売却予定">売却予定</option>
+      </select>
+    </div>
+    <div class="field full">
+      <label for="gameMemo">メモ</label>
+      <textarea id="gameMemo" placeholder="例：DLC購入済み / 貸出中 / ケースなし"></textarea>
+    </div>
+  </div>
+  <div class="form-actions">
+    <button class="ghost hidden" id="gameCancelBtn">編集キャンセル</button>
+    <button class="primary" id="gameSaveBtn">保存</button>
+  </div>
+</section>
+
+<section class="panel hidden" id="mangaFormPanel">
+  <h2 id="mangaFormTitle">漫画を追加</h2>
+  <div class="form-grid">
+    <div class="field">
+      <label for="mangaTitle">漫画タイトル</label>
+      <input id="mangaTitle" placeholder="例：ONE PIECE" />
+    </div>
+    <div class="field">
+      <label for="mangaOwned">所持巻数</label>
+      <input id="mangaOwned" placeholder="例：1-12, 15, 18-20" />
+    </div>
+    <div class="field">
+      <label for="mangaLatest">最新巻</label>
+      <input id="mangaLatest" type="number" min="0" placeholder="例：108" />
+    </div>
+    <div class="field">
+      <label for="mangaStatus">状態</label>
+      <select id="mangaStatus">
+        <option value="収集中">収集中</option>
+        <option value="全巻所持">全巻所持</option>
+        <option value="途中まで">途中まで</option>
+        <option value="売却予定">売却予定</option>
+        <option value="完結済み">完結済み</option>
+      </select>
+    </div>
+    <div class="field full">
+      <label for="mangaMemo">メモ</label>
+      <textarea id="mangaMemo" placeholder="例：電子書籍あり / 13・14巻だけ未所持 / 外伝あり"></textarea>
+    </div>
+  </div>
+  <div class="form-actions">
+    <button class="ghost hidden" id="mangaCancelBtn">編集キャンセル</button>
+    <button class="primary" id="mangaSaveBtn">保存</button>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="filter-row">
+    <input id="searchInput" placeholder="検索：タイトル・ハード・メモ" />
+    <select id="filterSelect"></select>
+    <select id="sortSelect">
+      <option value="updatedDesc">更新が新しい順</option>
+      <option value="titleAsc">タイトル順</option>
+      <option value="createdDesc">追加が新しい順</option>
+    </select>
+  </div>
+  <div class="list" id="list"></div>
+  <p class="small-note">※ このアプリはlocalStorage保存です。スマホ変更・ブラウザ削除に備えて、定期的に「バックアップ」を押してください。</p>
+</section>
+
+  </div>  <script>
+    const STORAGE_KEY = "collection_manager_v1";
+
+    let state = loadState();
+    let currentTab = "games";
+    let editingGameId = null;
+    let editingMangaId = null;
+
+    const $ = (id) => document.getElementById(id);
+
+    const elements = {
+      tabs: document.querySelectorAll(".tab"),
+      gameFormPanel: $("gameFormPanel"),
+      mangaFormPanel: $("mangaFormPanel"),
+      gameFormTitle: $("gameFormTitle"),
+      mangaFormTitle: $("mangaFormTitle"),
+      gameTitle: $("gameTitle"),
+      gameHardware: $("gameHardware"),
+      gameType: $("gameType"),
+      gameStatus: $("gameStatus"),
+      gameMemo: $("gameMemo"),
+      gameSaveBtn: $("gameSaveBtn"),
+      gameCancelBtn: $("gameCancelBtn"),
+      mangaTitle: $("mangaTitle"),
+      mangaOwned: $("mangaOwned"),
+      mangaLatest: $("mangaLatest"),
+      mangaStatus: $("mangaStatus"),
+      mangaMemo: $("mangaMemo"),
+      mangaSaveBtn: $("mangaSaveBtn"),
+      mangaCancelBtn: $("mangaCancelBtn"),
+      searchInput: $("searchInput"),
+      filterSelect: $("filterSelect"),
+      sortSelect: $("sortSelect"),
+      list: $("list"),
+      gameCount: $("gameCount"),
+      hardwareCount: $("hardwareCount"),
+      mangaCount: $("mangaCount"),
+      volumeCount: $("volumeCount"),
+      exportBtn: $("exportBtn"),
+      importBtn: $("importBtn"),
+      importFile: $("importFile"),
+      wipeBtn: $("wipeBtn")
+    };
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return { games: [], manga: [] };
+        const parsed = JSON.parse(saved);
+        return {
+          games: Array.isArray(parsed.games) ? parsed.games : [],
+          manga: Array.isArray(parsed.manga) ? parsed.manga : []
+        };
+      } catch (error) {
+        console.error(error);
+        return { games: [], manga: [] };
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      render();
+    }
+
+    function uid() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    }
+
+    function now() {
+      return new Date().toISOString();
+    }
+
+    function normalize(text) {
+      return String(text || "").toLowerCase().trim();
+    }
+
+    function escapeHtml(text) {
+      return String(text || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function parseVolumes(input) {
+      const text = String(input || "").replace(/[　\s]/g, "");
+      if (!text) return [];
+
+      const set = new Set();
+      const parts = text.split(/[、,]/).filter(Boolean);
+
+      parts.forEach(part => {
+        const range = part.match(/^(\d+)[-〜~](\d+)$/);
+        if (range) {
+          const start = Number(range[1]);
+          const end = Number(range[2]);
+          const min = Math.min(start, end);
+          const max = Math.max(start, end);
+          for (let i = min; i <= max; i++) set.add(i);
+        } else if (/^\d+$/.test(part)) {
+          set.add(Number(part));
+        }
+      });
+
+      return Array.from(set).sort((a, b) => a - b);
+    }
+
+    function summarizeMissing(ownedText, latest) {
+      const latestNum = Number(latest || 0);
+      if (!latestNum) return "最新巻未入力";
+
+      const owned = new Set(parseVolumes(ownedText));
+      const missing = [];
+      for (let i = 1; i <= latestNum; i++) {
+        if (!owned.has(i)) missing.push(i);
+      }
+
+      if (missing.length === 0) return "不足なし";
+      if (missing.length <= 8) return "不足: " + missing.join(", ") + "巻";
+      return "不足: " + missing.slice(0, 8).join(", ") + "巻 ほか" + (missing.length - 8) + "冊";
+    }
+
+    function setTab(tab) {
+      currentTab = tab;
+      elements.tabs.forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tab));
+      elements.gameFormPanel.classList.toggle("hidden", tab !== "games");
+      elements.mangaFormPanel.classList.toggle("hidden", tab !== "manga");
+      elements.searchInput.value = "";
+      elements.sortSelect.value = "updatedDesc";
+      render();
+    }
+
+    function saveGame() {
+      const title = elements.gameTitle.value.trim();
+      const hardware = elements.gameHardware.value.trim();
+
+      if (!title) return alert("ソフト名を入力してください。どのハードか分からない場合も、ソフト名だけは必要です。");
+      if (!hardware) return alert("ハード名を入力してください。例：Switch / PS5 / 3DS");
+
+      if (editingGameId) {
+        const item = state.games.find(game => game.id === editingGameId);
+        if (item) {
+          item.title = title;
+          item.hardware = hardware;
+          item.type = elements.gameType.value;
+          item.status = elements.gameStatus.value;
+          item.memo = elements.gameMemo.value.trim();
+          item.updatedAt = now();
+        }
+      } else {
+        state.games.push({
+          id: uid(),
+          title,
+          hardware,
+          type: elements.gameType.value,
+          status: elements.gameStatus.value,
+          memo: elements.gameMemo.value.trim(),
+          createdAt: now(),
+          updatedAt: now()
+        });
+      }
+
+      resetGameForm();
+      saveState();
+    }
+
+    function saveManga() {
+      const title = elements.mangaTitle.value.trim();
+      const owned = elements.mangaOwned.value.trim();
+      const latest = Number(elements.mangaLatest.value || 0);
+
+      if (!title) return alert("漫画タイトルを入力してください。");
+      if (!owned) return alert("所持巻数を入力してください。例：1-12, 15, 18-20");
+
+      if (editingMangaId) {
+        const item = state.manga.find(manga => manga.id === editingMangaId);
+        if (item) {
+          item.title = title;
+          item.owned = owned;
+          item.latest = latest;
+          item.status = elements.mangaStatus.value;
+          item.memo = elements.mangaMemo.value.trim();
+          item.updatedAt = now();
+        }
+      } else {
+        state.manga.push({
+          id: uid(),
+          title,
+          owned,
+          latest,
+          status: elements.mangaStatus.value,
+          memo: elements.mangaMemo.value.trim(),
+          createdAt: now(),
+          updatedAt: now()
+        });
+      }
+
+      resetMangaForm();
+      saveState();
+    }
+
+    function resetGameForm() {
+      editingGameId = null;
+      elements.gameFormTitle.textContent = "ゲームソフトを追加";
+      elements.gameTitle.value = "";
+      elements.gameHardware.value = "";
+      elements.gameType.value = "パッケージ";
+      elements.gameStatus.value = "未プレイ";
+      elements.gameMemo.value = "";
+      elements.gameCancelBtn.classList.add("hidden");
+      elements.gameSaveBtn.textContent = "保存";
+    }
+
+    function resetMangaForm() {
+      editingMangaId = null;
+      elements.mangaFormTitle.textContent = "漫画を追加";
+      elements.mangaTitle.value = "";
+      elements.mangaOwned.value = "";
+      elements.mangaLatest.value = "";
+      elements.mangaStatus.value = "収集中";
+      elements.mangaMemo.value = "";
+      elements.mangaCancelBtn.classList.add("hidden");
+      elements.mangaSaveBtn.textContent = "保存";
+    }
+
+    function editGame(id) {
+      const item = state.games.find(game => game.id === id);
+      if (!item) return;
+      editingGameId = id;
+      elements.gameFormTitle.textContent = "ゲームソフトを編集";
+      elements.gameTitle.value = item.title;
+      elements.gameHardware.value = item.hardware;
+      elements.gameType.value = item.type;
+      elements.gameStatus.value = item.status;
+      elements.gameMemo.value = item.memo || "";
+      elements.gameCancelBtn.classList.remove("hidden");
+      elements.gameSaveBtn.textContent = "更新";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function editManga(id) {
+      const item = state.manga.find(manga => manga.id === id);
+      if (!item) return;
+      editingMangaId = id;
+      elements.mangaFormTitle.textContent = "漫画を編集";
+      elements.mangaTitle.value = item.title;
+      elements.mangaOwned.value = item.owned;
+      elements.mangaLatest.value = item.latest || "";
+      elements.mangaStatus.value = item.status;
+      elements.mangaMemo.value = item.memo || "";
+      elements.mangaCancelBtn.classList.remove("hidden");
+      elements.mangaSaveBtn.textContent = "更新";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function deleteGame(id) {
+      const item = state.games.find(game => game.id === id);
+      if (!item) return;
+      if (!confirm(`「${item.title}」を削除しますか？`)) return;
+      state.games = state.games.filter(game => game.id !== id);
+      saveState();
+    }
+
+    function deleteManga(id) {
+      const item = state.manga.find(manga => manga.id === id);
+      if (!item) return;
+      if (!confirm(`「${item.title}」を削除しますか？`)) return;
+      state.manga = state.manga.filter(manga => manga.id !== id);
+      saveState();
+    }
+
+    function sortItems(items) {
+      const sort = elements.sortSelect.value;
+      return [...items].sort((a, b) => {
+        if (sort === "titleAsc") return a.title.localeCompare(b.title, "ja");
+        if (sort === "createdDesc") return new Date(b.createdAt) - new Date(a.createdAt);
+        return new Date(b.updatedAt) - new Date(a.updatedAt);
+      });
+    }
+
+    function renderFilterOptions() {
+      const prev = elements.filterSelect.value;
+      elements.filterSelect.innerHTML = "";
+
+      const all = document.createElement("option");
+      all.value = "all";
+      all.textContent = currentTab === "games" ? "全ハード" : "全状態";
+      elements.filterSelect.appendChild(all);
+
+      const values = currentTab === "games"
+        ? Array.from(new Set(state.games.map(item => item.hardware).filter(Boolean))).sort((a, b) => a.localeCompare(b, "ja"))
+        : Array.from(new Set(state.manga.map(item => item.status).filter(Boolean))).sort((a, b) => a.localeCompare(b, "ja"));
+
+      values.forEach(value => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = value;
+        elements.filterSelect.appendChild(option);
+      });
+
+      elements.filterSelect.value = values.includes(prev) ? prev : "all";
+    }
+
+    function getFilteredItems() {
+      const query = normalize(elements.searchInput.value);
+      const filter = elements.filterSelect.value;
+      const source = currentTab === "games" ? state.games : state.manga;
+
+      const filtered = source.filter(item => {
+        const target = currentTab === "games"
+          ? `${item.title} ${item.hardware} ${item.type} ${item.status} ${item.memo}`
+          : `${item.title} ${item.owned} ${item.latest} ${item.status} ${item.memo}`;
+
+        const matchesQuery = !query || normalize(target).includes(query);
+        const matchesFilter = filter === "all" || (currentTab === "games" ? item.hardware === filter : item.status === filter);
+        return matchesQuery && matchesFilter;
+      });
+
+      return sortItems(filtered);
+    }
+
+    function renderList() {
+      const items = getFilteredItems();
+      elements.list.innerHTML = "";
+
+      if (items.length === 0) {
+        elements.list.innerHTML = `<div class="empty">まだ表示できるデータがありません。上のフォームから追加してください。</div>`;
+        return;
+      }
+
+      items.forEach(item => {
+        const card = document.createElement("article");
+        card.className = "card";
+
+        if (currentTab === "games") {
+          card.innerHTML = `
+            <div class="card-top">
+              <div>
+                <div class="item-title">${escapeHtml(item.title)}</div>
+                <div class="badges">
+                  <span class="badge">${escapeHtml(item.hardware)}</span>
+                  <span class="badge purple">${escapeHtml(item.type)}</span>
+                  <span class="badge green">${escapeHtml(item.status)}</span>
+                </div>
+                ${item.memo ? `<div class="memo">${escapeHtml(item.memo)}</div>` : ""}
+              </div>
+              <div class="card-actions">
+                <button class="ghost" onclick="editGame('${item.id}')">編集</button>
+                <button class="danger" onclick="deleteGame('${item.id}')">削除</button>
+              </div>
+            </div>
+          `;
+        } else {
+          const ownedVolumes = parseVolumes(item.owned);
+          const ownedCount = ownedVolumes.length;
+          const missingText = summarizeMissing(item.owned, item.latest);
+          const complete = item.latest && ownedCount >= Number(item.latest) && missingText === "不足なし";
+
+          card.innerHTML = `
+            <div class="card-top">
+              <div>
+                <div class="item-title">${escapeHtml(item.title)}</div>
+                <div class="badges">
+                  <span class="badge">所持: ${escapeHtml(item.owned)}</span>
+                  <span class="badge purple">${ownedCount}冊</span>
+                  <span class="badge ${complete ? "green" : "yellow"}">${escapeHtml(missingText)}</span>
+                  <span class="badge green">${escapeHtml(item.status)}</span>
+                </div>
+                ${item.memo ? `<div class="memo">${escapeHtml(item.memo)}</div>` : ""}
+              </div>
+              <div class="card-actions">
+                <button class="ghost" onclick="editManga('${item.id}')">編集</button>
+                <button class="danger" onclick="deleteManga('${item.id}')">削除</button>
+              </div>
+            </div>
+          `;
+        }
+
+        elements.list.appendChild(card);
+      });
+    }
+
+    function renderStats() {
+      const hardwares = new Set(state.games.map(item => item.hardware).filter(Boolean));
+      const totalVolumes = state.manga.reduce((sum, item) => sum + parseVolumes(item.owned).length, 0);
+
+      elements.gameCount.textContent = state.games.length;
+      elements.hardwareCount.textContent = hardwares.size;
+      elements.mangaCount.textContent = state.manga.length;
+      elements.volumeCount.textContent = totalVolumes;
+    }
+
+    function render() {
+      renderStats();
+      renderFilterOptions();
+      renderList();
+    }
+
+    function exportData() {
+      const data = {
+        app: "collection_manager",
+        version: 1,
+        exportedAt: now(),
+        ...state
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `collection-backup-${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          if (!Array.isArray(data.games) || !Array.isArray(data.manga)) {
+            throw new Error("Invalid backup file");
+          }
+          if (!confirm("現在のデータをバックアップ内容で上書きしますか？")) return;
+          state = { games: data.games, manga: data.manga };
+          saveState();
+          alert("復元しました。");
+        } catch (error) {
+          alert("復元できませんでした。バックアップJSONを確認してください。 ");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function wipeData() {
+      if (!confirm("全データを削除しますか？この操作は戻せません。")) return;
+      if (!confirm("本当に削除しますか？先にバックアップすることをおすすめします。")) return;
+      state = { games: [], manga: [] };
+      resetGameForm();
+      resetMangaForm();
+      saveState();
+    }
+
+    elements.tabs.forEach(btn => btn.addEventListener("click", () => setTab(btn.dataset.tab)));
+    elements.gameSaveBtn.addEventListener("click", saveGame);
+    elements.mangaSaveBtn.addEventListener("click", saveManga);
+    elements.gameCancelBtn.addEventListener("click", resetGameForm);
+    elements.mangaCancelBtn.addEventListener("click", resetMangaForm);
+    elements.searchInput.addEventListener("input", renderList);
+    elements.filterSelect.addEventListener("change", renderList);
+    elements.sortSelect.addEventListener("change", renderList);
+    elements.exportBtn.addEventListener("click", exportData);
+    elements.importBtn.addEventListener("click", () => elements.importFile.click());
+    elements.importFile.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (file) importData(file);
+      event.target.value = "";
+    });
+    elements.wipeBtn.addEventListener("click", wipeData);
+
+    render();
+  </script></body>
+</html>
